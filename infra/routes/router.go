@@ -1,17 +1,24 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/TulioGuaraldoB/q2-payer-challenge/infra/db"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/util/health"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/business"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/controller"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
+	"github.com/TulioGuaraldoB/q2-payer-challenge/web/service"
 	"github.com/gofiber/fiber/v2"
 )
 
 func SetupRoutes() *fiber.App {
 	// Services-Settings
 	db := db.OpenConnection()
+	httpClient := &http.Client{}
+
+	// Services
+	authorizationService := service.NewAuthorizationService(httpClient)
 
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
@@ -20,7 +27,7 @@ func SetupRoutes() *fiber.App {
 
 	// Businesses
 	userBusiness := business.NewUserBusiness(userRepository)
-	walletBusiness := business.NewWalletBusiness(walletRepository, userRepository)
+	walletBusiness := business.NewWalletBusiness(walletRepository, userRepository, authorizationService)
 	transactionBusiness := business.NewTransactionBusiness(transactionRepository)
 
 	// Controllers
@@ -45,6 +52,7 @@ func SetupRoutes() *fiber.App {
 
 	wallet := v1.Group("wallet")
 	wallet.Post("user", walletController.GetWalletByUserCredentials)
+	wallet.Post("deposit", walletController.DepositToWalletBalance)
 	wallet.Post("", walletController.CreateWallet)
 	wallet.Delete(":id", walletController.DeleteWallet)
 

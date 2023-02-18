@@ -14,6 +14,7 @@ type IWalletController interface {
 	GetWalletByUserCredentials(ctx *fiber.Ctx) error
 	CreateWallet(ctx *fiber.Ctx) error
 	DeleteWallet(ctx *fiber.Ctx) error
+	DepositToWalletBalance(ctx *fiber.Ctx) error
 }
 
 type walletController struct {
@@ -63,7 +64,7 @@ func (c *walletController) CreateWallet(ctx *fiber.Ctx) error {
 
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "wallet created successfully!",
-		"user":    walletRequest,
+		"wallet":  walletRequest,
 	})
 }
 
@@ -87,4 +88,53 @@ func (c *walletController) DeleteWallet(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "wallet deleted successfully!",
 	})
+}
+
+func (c *walletController) DepositToWalletBalance(ctx *fiber.Ctx) error {
+	walletRequest := new(dto.WalletRequest)
+	if err := ctx.BodyParser(walletRequest); err != nil {
+		return ctx.Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	wallet, err := c.walletBusiness.GetWalletByUserId(walletRequest.UserID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return ctx.Status(http.StatusNotFound).
+				JSON(fiber.Map{"error": err.Error()})
+		}
+
+		return ctx.Status(http.StatusInternalServerError).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	oldBalance := wallet.Balance
+	if err := c.walletBusiness.DepositToWalletBalance(walletRequest.UserID, walletRequest.Balance); err != nil {
+		return ctx.Status(http.StatusInternalServerError).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	newWallet, err := c.walletBusiness.GetWalletByUserId(walletRequest.UserID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return ctx.Status(http.StatusNotFound).
+				JSON(fiber.Map{"error": err.Error()})
+		}
+
+		return ctx.Status(http.StatusInternalServerError).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{
+		"message": "deposit to wallet successfully!",
+		"status": fiber.Map{
+			"old_balance":     oldBalance,
+			"current_balance": newWallet.Balance,
+			"incoming_value":  walletRequest.Balance,
+		},
+	})
+}
+
+func PayWalletTransaction(ctx *fiber.Ctx) error {
+	return ctx.Status(http.StatusCreated).JSON("")
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/dto"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
+	"github.com/TulioGuaraldoB/q2-payer-challenge/web/service"
 )
 
 type IWalletBusiness interface {
@@ -13,18 +14,22 @@ type IWalletBusiness interface {
 	CreateWallet(wallet *model.Wallet) error
 	DeleteWallet(walletId uint) error
 	UpdateWalletBalance(walletId uint, newBalance float64) error
+	DepositToWalletBalance(userId uint, newBalance float64) error
 }
 
 type walletBusiness struct {
-	walletRepository repository.IWalletRepository
-	userRepository   repository.IUserRepository
+	walletRepository     repository.IWalletRepository
+	userRepository       repository.IUserRepository
+	authorizationService service.IAuthorizationService
 }
 
 func NewWalletBusiness(walletRepository repository.IWalletRepository,
-	userRepository repository.IUserRepository) IWalletBusiness {
+	userRepository repository.IUserRepository,
+	authorizationService service.IAuthorizationService) IWalletBusiness {
 	return &walletBusiness{
-		walletRepository: walletRepository,
-		userRepository:   userRepository,
+		walletRepository:     walletRepository,
+		userRepository:       userRepository,
+		authorizationService: authorizationService,
 	}
 }
 
@@ -54,4 +59,15 @@ func (b *walletBusiness) DeleteWallet(walletId uint) error {
 
 func (b *walletBusiness) UpdateWalletBalance(walletId uint, newBalance float64) error {
 	return b.walletRepository.UpdateWalletBalance(walletId, newBalance)
+}
+
+func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64) error {
+	wallet, err := b.walletRepository.GetWalletByUserId(userId)
+	if err != nil {
+		return err
+	}
+
+	oldBalance := wallet.Balance
+	newWalletBalance := oldBalance + newBalance
+	return b.UpdateWalletBalance(userId, newWalletBalance)
 }

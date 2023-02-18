@@ -13,6 +13,7 @@ type EnvironmentVariable struct {
 	MysqlPort     string
 	MysqlDatabase string
 	Port          string
+	AuthorizerUrl string
 }
 
 var Env *EnvironmentVariable
@@ -27,6 +28,7 @@ func GetEnvironmentVariables() *EnvironmentVariable {
 		MysqlPort:     os.Getenv("MYSQL_PORT"),
 		MysqlDatabase: os.Getenv("MYSQL_DATABASE"),
 		Port:          os.Getenv("PORT"),
+		AuthorizerUrl: os.Getenv("AUTHORIZER_URL"),
 	}
 	return Env
 }

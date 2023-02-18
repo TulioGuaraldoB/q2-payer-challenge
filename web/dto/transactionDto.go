@@ -11,6 +11,12 @@ type TransactionResponse struct {
 	Amount         float64        `json:"amount"`
 }
 
+type TransactionRequest struct {
+	PayerWalletID  uint    `json:"payer_id"`
+	TargetWalletID uint    `json:"target_wallet_id"`
+	Amount         float64 `json:"amount"`
+}
+
 func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResponse {
 	return &TransactionResponse{
 		ID:            transaction.ID,
@@ -43,5 +49,13 @@ func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResp
 			Balance: transaction.TargetWallet.Balance,
 		},
 		Amount: transaction.Amount,
+	}
+}
+
+func ParseRequestToTransaction(transactionRequest *TransactionRequest) *model.Transaction {
+	return &model.Transaction{
+		PayerWalletID:  transactionRequest.PayerWalletID,
+		TargetWalletID: transactionRequest.TargetWalletID,
+		Amount:         transactionRequest.Amount,
 	}
 }
