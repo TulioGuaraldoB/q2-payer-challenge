@@ -16,14 +16,17 @@ func SetupRoutes() *fiber.App {
 	// Repositories
 	userRepository := repository.NewUserRepository(db)
 	walletRepository := repository.NewWalletRepository(db)
+	transactionRepository := repository.NewTransactionRepository(db)
 
 	// Businesses
 	userBusiness := business.NewUserBusiness(userRepository)
 	walletBusiness := business.NewWalletBusiness(walletRepository, userRepository)
+	transactionBusiness := business.NewTransactionBusiness(transactionRepository)
 
 	// Controllers
 	userController := controller.NewUserController(userBusiness)
 	walletController := controller.NewWalletController(walletBusiness)
+	transactionController := controller.NewTransactionController(transactionBusiness)
 
 	app := fiber.New()
 	app.Get("health", health.HealthCheck)
@@ -44,6 +47,9 @@ func SetupRoutes() *fiber.App {
 	wallet.Post("user", walletController.GetWalletByUserCredentials)
 	wallet.Post("", walletController.CreateWallet)
 	wallet.Delete(":id", walletController.DeleteWallet)
+
+	transaction := v1.Group("transaction")
+	transaction.Get(":id", transactionController.GetTransactionById)
 
 	return app
 }
