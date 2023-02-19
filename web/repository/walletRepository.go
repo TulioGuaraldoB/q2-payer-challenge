@@ -44,8 +44,25 @@ func (r *walletRepository) DeleteWallet(walletId uint) error {
 
 func (r *walletRepository) UpdateWalletBalance(walletId uint, newBalance float64) error {
 	wallet := new(model.Wallet)
-	return r.db.Model(wallet).
+
+	tx := r.db.Begin()
+	defer func() {
+		if rec := recover(); rec != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Error; err != nil {
+		return err
+	}
+
+	if err := tx.Model(wallet).
 		Where("id = ?", &walletId).
 		Update("balance", newBalance).
-		Error
+		Error; err != nil {
+		r.db.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }

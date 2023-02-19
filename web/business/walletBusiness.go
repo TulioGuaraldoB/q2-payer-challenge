@@ -2,6 +2,7 @@ package business
 
 import (
 	"github.com/TulioGuaraldoB/q2-payer-challenge/util/encrypt"
+	"github.com/TulioGuaraldoB/q2-payer-challenge/web/constant"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/dto"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
@@ -70,4 +71,37 @@ func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64)
 	oldBalance := wallet.Balance
 	newWalletBalance := oldBalance + newBalance
 	return b.UpdateWalletBalance(userId, newWalletBalance)
+}
+
+func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest, payerWalletUserId, targetWalletUserId uint, paymentTransactionValue float64) error {
+	wallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.PayerWalletUserID)
+	if err != nil {
+		return err
+	}
+
+	if wallet.Balance < paymentTransactionValue {
+		return constant.INSUFFICIENT_FUND
+	}
+
+	authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
+	if err != nil {
+		authorizerResponse.Authorized = false
+	}
+
+	if !authorizerResponse.Authorized {
+		return constant.UNAUTHORIZED_TRANSACTION
+	}
+
+	newPayerBalance := (wallet.Balance - paymentTransactionValue)
+	if err := b.walletRepository.UpdateWalletBalance(wallet.ID, newPayerBalance); err != nil {
+		return err
+	}
+
+	targetWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUsertID)
+	if err != nil {
+		return err
+	}
+
+	newTargetBalance := (targetWallet.Balance + paymentTransactionValue)
+	return b.walletRepository.UpdateWalletBalance(targetWallet.ID, newTargetBalance)
 }

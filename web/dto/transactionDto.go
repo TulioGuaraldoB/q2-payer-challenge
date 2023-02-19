@@ -3,18 +3,18 @@ package dto
 import "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
 
 type TransactionResponse struct {
-	ID             uint           `json:"id"`
-	PayerWalletID  uint           `json:"payer_id"`
-	PayerWallet    WalletResponse `json:"payer_wallet"`
-	TargetWalletID uint           `json:"target_wallet_id"`
-	TargetWallet   WalletResponse `json:"target_wallet"`
-	Amount         float64        `json:"amount"`
+	ID               uint           `json:"id"`
+	PayerWalletID    uint           `json:"payer_id"`
+	PayerWallet      WalletResponse `json:"payer_wallet"`
+	ReceiverWalletID uint           `json:"receiver_wallet_id"`
+	ReceiverWallet   WalletResponse `json:"receiver_wallet"`
+	Amount           float64        `json:"amount"`
 }
 
 type TransactionRequest struct {
-	PayerWalletID  uint    `json:"payer_id"`
-	TargetWalletID uint    `json:"target_wallet_id"`
-	Amount         float64 `json:"amount"`
+	PayerWalletUserID     uint    `json:"payer_id"`
+	ReceiverWalletUsertID uint    `json:"receiver_id"`
+	Amount                float64 `json:"amount"`
 }
 
 func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResponse {
@@ -34,19 +34,19 @@ func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResp
 			},
 			Balance: transaction.PayerWallet.Balance,
 		},
-		TargetWalletID: transaction.TargetWalletID,
-		TargetWallet: WalletResponse{
-			ID:     transaction.TargetWallet.ID,
-			UserID: transaction.TargetWallet.UserID,
+		ReceiverWalletID: transaction.ReceiverWalletID,
+		ReceiverWallet: WalletResponse{
+			ID:     transaction.ReceiverWallet.ID,
+			UserID: transaction.ReceiverWallet.UserID,
 			User: UserResponse{
-				ID:       transaction.TargetWallet.User.ID,
-				FullName: transaction.TargetWallet.User.FullName,
-				CPF:      transaction.TargetWallet.User.CPF,
-				CNPJ:     transaction.TargetWallet.User.CNPJ,
-				Email:    transaction.TargetWallet.User.Email,
-				UserType: transaction.TargetWallet.User.UserType,
+				ID:       transaction.ReceiverWallet.User.ID,
+				FullName: transaction.ReceiverWallet.User.FullName,
+				CPF:      transaction.ReceiverWallet.User.CPF,
+				CNPJ:     transaction.ReceiverWallet.User.CNPJ,
+				Email:    transaction.ReceiverWallet.User.Email,
+				UserType: transaction.ReceiverWallet.User.UserType,
 			},
-			Balance: transaction.TargetWallet.Balance,
+			Balance: transaction.ReceiverWallet.Balance,
 		},
 		Amount: transaction.Amount,
 	}
@@ -54,8 +54,8 @@ func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResp
 
 func ParseRequestToTransaction(transactionRequest *TransactionRequest) *model.Transaction {
 	return &model.Transaction{
-		PayerWalletID:  transactionRequest.PayerWalletID,
-		TargetWalletID: transactionRequest.TargetWalletID,
-		Amount:         transactionRequest.Amount,
+		PayerWalletID:    transactionRequest.PayerWalletUserID,
+		ReceiverWalletID: transactionRequest.ReceiverWalletUsertID,
+		Amount:           transactionRequest.Amount,
 	}
 }
