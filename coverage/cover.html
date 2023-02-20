@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/userBusiness.go (100.0%)</option>
 				
-				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/walletBusiness.go (0.0%)</option>
+				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/walletBusiness.go (40.9%)</option>
 				
 				<option value="file3">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/transactionRepository.go (100.0%)</option>
 				
@@ -204,7 +204,7 @@ type walletBusiness struct {
 
 func NewWalletBusiness(walletRepository repository.IWalletRepository,
         userRepository repository.IUserRepository,
-        authorizationService service.IAuthorizationService) IWalletBusiness <span class="cov0" title="0">{
+        authorizationService service.IAuthorizationService) IWalletBusiness <span class="cov8" title="1">{
         return &amp;walletBusiness{
                 walletRepository:     walletRepository,
                 userRepository:       userRepository,
@@ -212,42 +212,42 @@ func NewWalletBusiness(walletRepository repository.IWalletRepository,
         }
 }</span>
 
-func (b *walletBusiness) GetWalletByUserId(userId uint) (*model.Wallet, error) <span class="cov0" title="0">{
+func (b *walletBusiness) GetWalletByUserId(userId uint) (*model.Wallet, error) <span class="cov8" title="1">{
         return b.walletRepository.GetWalletByUserId(userId)
 }</span>
 
-func (b *walletBusiness) GetWalletByUserCredentials(userCredentials *dto.UserCredentials) (*model.Wallet, error) <span class="cov0" title="0">{
+func (b *walletBusiness) GetWalletByUserCredentials(userCredentials *dto.UserCredentials) (*model.Wallet, error) <span class="cov8" title="1">{
         hashedPassword := encrypt.HashToSHA256(userCredentials.Password)
         userCredentials.Password = hashedPassword
 
         user, err := b.userRepository.GetUserByCredentials(userCredentials.Email, userCredentials.Password)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">return b.walletRepository.GetWalletByUserId(user.ID)</span>
+        <span class="cov8" title="1">return b.walletRepository.GetWalletByUserId(user.ID)</span>
 }
 
-func (b *walletBusiness) CreateWallet(wallet *model.Wallet) error <span class="cov0" title="0">{
+func (b *walletBusiness) CreateWallet(wallet *model.Wallet) error <span class="cov8" title="1">{
         wallet.Balance = 0
         return b.walletRepository.CreateWallet(wallet)
 }</span>
 
-func (b *walletBusiness) DeleteWallet(walletId uint) error <span class="cov0" title="0">{
+func (b *walletBusiness) DeleteWallet(walletId uint) error <span class="cov8" title="1">{
         return b.walletRepository.DeleteWallet(walletId)
 }</span>
 
-func (b *walletBusiness) UpdateWalletBalance(walletId uint, newBalance float64) error <span class="cov0" title="0">{
+func (b *walletBusiness) UpdateWalletBalance(walletId uint, newBalance float64) error <span class="cov8" title="1">{
         return b.walletRepository.UpdateWalletBalance(walletId, newBalance)
 }</span>
 
-func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64) error <span class="cov0" title="0">{
+func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64) error <span class="cov8" title="1">{
         wallet, err := b.walletRepository.GetWalletByUserId(userId)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return err
         }</span>
 
-        <span class="cov0" title="0">oldBalance := wallet.Balance
+        <span class="cov8" title="1">oldBalance := wallet.Balance
         newWalletBalance := oldBalance + newBalance
         return b.UpdateWalletBalance(userId, newWalletBalance)</span>
 }
