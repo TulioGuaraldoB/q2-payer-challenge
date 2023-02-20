@@ -92,7 +92,7 @@ func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.Transa
 
 	authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
 	if err != nil {
-		authorizerResponse.Authorized = false
+		return nil, constant.UNAUTHORIZED_TRANSACTION
 	}
 
 	if !authorizerResponse.Authorized {
@@ -109,8 +109,8 @@ func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.Transa
 		return nil, err
 	}
 
-	newTargetBalance := (receiverWallet.Balance + transactionRequest.Amount)
-	if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newTargetBalance); err != nil {
+	newReceiverBalance := (receiverWallet.Balance + transactionRequest.Amount)
+	if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newReceiverBalance); err != nil {
 		return nil, err
 	}
 

@@ -28,6 +28,8 @@ mock:
 	@mockgen -source=web/business/userBusiness.go -destination=web/business/mock/mockUserBusiness.go -package=mock
 	@mockgen -source=web/business/walletBusiness.go -destination=web/business/mock/mockWalletBusiness.go -package=mock
 	@mockgen -source=web/business/transactionBusiness.go -destination=web/business/mock/mockTransactionBusiness.go -package=mock
+	@echo Mocking services...
+	@mockgen -source=web/service/authorizationService.go -destination=web/service/mock/mockAuthorizationService.go -package=mock
 
 test:
 	@echo Running tests...

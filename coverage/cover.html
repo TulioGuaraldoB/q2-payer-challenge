@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/userBusiness.go (100.0%)</option>
 				
-				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/walletBusiness.go (40.9%)</option>
+				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/walletBusiness.go (100.0%)</option>
 				
 				<option value="file3">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/transactionRepository.go (100.0%)</option>
 				
@@ -252,51 +252,51 @@ func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64)
         return b.UpdateWalletBalance(userId, newWalletBalance)</span>
 }
 
-func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error) <span class="cov0" title="0">{
+func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error) <span class="cov8" title="1">{
         payerWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.PayerWalletUserID)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">userPayerWallet := payerWallet.User
-        if userPayerWallet.UserType == constant.MERCHANT_USER </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">userPayerWallet := payerWallet.User
+        if userPayerWallet.UserType == constant.MERCHANT_USER </span><span class="cov8" title="1">{
                 return nil, constant.UNAUTHORIZED_TRANSACTION
         }</span>
 
-        <span class="cov0" title="0">if payerWallet.Balance &lt; transactionRequest.Amount </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if payerWallet.Balance &lt; transactionRequest.Amount </span><span class="cov8" title="1">{
                 return nil, constant.INSUFFICIENT_FUND
         }</span>
 
-        <span class="cov0" title="0">authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
-        if err != nil </span><span class="cov0" title="0">{
-                authorizerResponse.Authorized = false
-        }</span>
-
-        <span class="cov0" title="0">if !authorizerResponse.Authorized </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, constant.UNAUTHORIZED_TRANSACTION
         }</span>
 
-        <span class="cov0" title="0">newPayerBalance := (payerWallet.Balance - transactionRequest.Amount)
-        if err := b.walletRepository.UpdateWalletBalance(payerWallet.ID, newPayerBalance); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if !authorizerResponse.Authorized </span><span class="cov8" title="1">{
+                return nil, constant.UNAUTHORIZED_TRANSACTION
+        }</span>
+
+        <span class="cov8" title="1">newPayerBalance := (payerWallet.Balance - transactionRequest.Amount)
+        if err := b.walletRepository.UpdateWalletBalance(payerWallet.ID, newPayerBalance); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">receiverWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">receiverWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">newTargetBalance := (receiverWallet.Balance + transactionRequest.Amount)
-        if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newTargetBalance); err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">newReceiverBalance := (receiverWallet.Balance + transactionRequest.Amount)
+        if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newReceiverBalance); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">receiverWalletUpdated, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">receiverWalletUpdated, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
+        if err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">return receiverWalletUpdated, nil</span>
+        <span class="cov8" title="1">return receiverWalletUpdated, nil</span>
 }
 </pre>
 		
