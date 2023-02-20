@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>repository: Go Coverage Report</title>
+		<title>business: Go Coverage Report</title>
 		<style>
 			body {
 				background: black;
@@ -55,11 +55,17 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/transactionRepository.go (100.0%)</option>
+				<option value="file0">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/transactionBusiness.go (0.0%)</option>
 				
-				<option value="file1">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/userRepository.go (100.0%)</option>
+				<option value="file1">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/userBusiness.go (100.0%)</option>
 				
-				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/walletRepository.go (100.0%)</option>
+				<option value="file2">github.com/TulioGuaraldoB/q2-payer-challenge/web/business/walletBusiness.go (0.0%)</option>
+				
+				<option value="file3">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/transactionRepository.go (100.0%)</option>
+				
+				<option value="file4">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/userRepository.go (100.0%)</option>
+				
+				<option value="file5">github.com/TulioGuaraldoB/q2-payer-challenge/web/repository/walletRepository.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -73,7 +79,228 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">package repository
+		<pre class="file" id="file0" style="display: none">package business
+
+import (
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
+)
+
+type ITransactionBusiness interface {
+        GetTransactionById(transactionId uint) (*model.Transaction, error)
+}
+
+type transactionBusiness struct {
+        transactionRepository repository.ITransactionRepository
+}
+
+func NewTransactionBusiness(transactionRepository repository.ITransactionRepository) ITransactionBusiness <span class="cov0" title="0">{
+        return &amp;transactionBusiness{
+                transactionRepository: transactionRepository,
+        }
+}</span>
+
+func (b *transactionBusiness) GetTransactionById(transactionId uint) (*model.Transaction, error) <span class="cov0" title="0">{
+        return b.transactionRepository.GetTransactionById(transactionId)
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package business
+
+import (
+        "github.com/TulioGuaraldoB/q2-payer-challenge/util/encrypt"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/util/formatter"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/dto"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
+)
+
+type IUserBusiness interface {
+        GetAllUsers() ([]model.User, error)
+        GetUserById(userId uint) (*model.User, error)
+        GetUserByEmail(userEmail string) (*model.User, error)
+        GetUserByCpf(userCpf string) (*model.User, error)
+        GetUserByCredentials(userCredentials *dto.UserCredentials) (*model.User, error)
+        CreateUser(user *model.User) error
+        DeleteUser(userId uint) error
+}
+
+type userBusiness struct {
+        userRepository repository.IUserRepository
+}
+
+func NewUserBusiness(userRepository repository.IUserRepository) IUserBusiness <span class="cov8" title="1">{
+        return &amp;userBusiness{
+                userRepository: userRepository,
+        }
+}</span>
+
+func (b *userBusiness) GetAllUsers() ([]model.User, error) <span class="cov8" title="1">{
+        return b.userRepository.GetAllUsers()
+}</span>
+
+func (b *userBusiness) GetUserById(userId uint) (*model.User, error) <span class="cov8" title="1">{
+        return b.userRepository.GetUserById(userId)
+}</span>
+
+func (b *userBusiness) GetUserByEmail(userEmail string) (*model.User, error) <span class="cov8" title="1">{
+        return b.userRepository.GetUserByEmail(userEmail)
+}</span>
+
+func (b *userBusiness) GetUserByCpf(userCpf string) (*model.User, error) <span class="cov8" title="1">{
+        return b.userRepository.GetUserByCpf(userCpf)
+}</span>
+
+func (b *userBusiness) GetUserByCredentials(userCredentials *dto.UserCredentials) (*model.User, error) <span class="cov8" title="1">{
+        hashedPassword := encrypt.HashToSHA256(userCredentials.Password)
+        userCredentials.Password = hashedPassword
+
+        return b.userRepository.GetUserByCredentials(userCredentials.Email, userCredentials.Password)
+}</span>
+
+func (b *userBusiness) CreateUser(user *model.User) error <span class="cov8" title="1">{
+        unmaskedCPF := formatter.RemoveMaskFromDocument(user.CPF)
+        unmaskedCNPJ := formatter.RemoveMaskFromDocument(user.CNPJ)
+        user.CPF = unmaskedCPF
+        user.CNPJ = unmaskedCNPJ
+
+        hashedPassword := encrypt.HashToSHA256(user.Password)
+        user.Password = hashedPassword
+
+        return b.userRepository.CreateUser(user)
+}</span>
+
+func (b *userBusiness) DeleteUser(userId uint) error <span class="cov8" title="1">{
+        return b.userRepository.DeleteUser(userId)
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package business
+
+import (
+        "github.com/TulioGuaraldoB/q2-payer-challenge/util/encrypt"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/constant"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/dto"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
+        "github.com/TulioGuaraldoB/q2-payer-challenge/web/service"
+)
+
+type IWalletBusiness interface {
+        GetWalletByUserId(userId uint) (*model.Wallet, error)
+        GetWalletByUserCredentials(userCredentials *dto.UserCredentials) (*model.Wallet, error)
+        CreateWallet(wallet *model.Wallet) error
+        DeleteWallet(walletId uint) error
+        UpdateWalletBalance(walletId uint, newBalance float64) error
+        DepositToWalletBalance(userId uint, newBalance float64) error
+        PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error)
+}
+
+type walletBusiness struct {
+        walletRepository     repository.IWalletRepository
+        userRepository       repository.IUserRepository
+        authorizationService service.IAuthorizationService
+}
+
+func NewWalletBusiness(walletRepository repository.IWalletRepository,
+        userRepository repository.IUserRepository,
+        authorizationService service.IAuthorizationService) IWalletBusiness <span class="cov0" title="0">{
+        return &amp;walletBusiness{
+                walletRepository:     walletRepository,
+                userRepository:       userRepository,
+                authorizationService: authorizationService,
+        }
+}</span>
+
+func (b *walletBusiness) GetWalletByUserId(userId uint) (*model.Wallet, error) <span class="cov0" title="0">{
+        return b.walletRepository.GetWalletByUserId(userId)
+}</span>
+
+func (b *walletBusiness) GetWalletByUserCredentials(userCredentials *dto.UserCredentials) (*model.Wallet, error) <span class="cov0" title="0">{
+        hashedPassword := encrypt.HashToSHA256(userCredentials.Password)
+        userCredentials.Password = hashedPassword
+
+        user, err := b.userRepository.GetUserByCredentials(userCredentials.Email, userCredentials.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return b.walletRepository.GetWalletByUserId(user.ID)</span>
+}
+
+func (b *walletBusiness) CreateWallet(wallet *model.Wallet) error <span class="cov0" title="0">{
+        wallet.Balance = 0
+        return b.walletRepository.CreateWallet(wallet)
+}</span>
+
+func (b *walletBusiness) DeleteWallet(walletId uint) error <span class="cov0" title="0">{
+        return b.walletRepository.DeleteWallet(walletId)
+}</span>
+
+func (b *walletBusiness) UpdateWalletBalance(walletId uint, newBalance float64) error <span class="cov0" title="0">{
+        return b.walletRepository.UpdateWalletBalance(walletId, newBalance)
+}</span>
+
+func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64) error <span class="cov0" title="0">{
+        wallet, err := b.walletRepository.GetWalletByUserId(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">oldBalance := wallet.Balance
+        newWalletBalance := oldBalance + newBalance
+        return b.UpdateWalletBalance(userId, newWalletBalance)</span>
+}
+
+func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error) <span class="cov0" title="0">{
+        payerWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.PayerWalletUserID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">userPayerWallet := payerWallet.User
+        if userPayerWallet.UserType == constant.MERCHANT_USER </span><span class="cov0" title="0">{
+                return nil, constant.UNAUTHORIZED_TRANSACTION
+        }</span>
+
+        <span class="cov0" title="0">if payerWallet.Balance &lt; transactionRequest.Amount </span><span class="cov0" title="0">{
+                return nil, constant.INSUFFICIENT_FUND
+        }</span>
+
+        <span class="cov0" title="0">authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
+        if err != nil </span><span class="cov0" title="0">{
+                authorizerResponse.Authorized = false
+        }</span>
+
+        <span class="cov0" title="0">if !authorizerResponse.Authorized </span><span class="cov0" title="0">{
+                return nil, constant.UNAUTHORIZED_TRANSACTION
+        }</span>
+
+        <span class="cov0" title="0">newPayerBalance := (payerWallet.Balance - transactionRequest.Amount)
+        if err := b.walletRepository.UpdateWalletBalance(payerWallet.ID, newPayerBalance); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">receiverWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">newTargetBalance := (receiverWallet.Balance + transactionRequest.Amount)
+        if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newTargetBalance); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">receiverWalletUpdated, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return receiverWalletUpdated, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package repository
 
 import (
         "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
@@ -108,7 +335,7 @@ func (r *transactionRepository) GetTransactionById(transactionId uint) (*model.T
 }
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package repository
+		<pre class="file" id="file4" style="display: none">package repository
 
 import (
         "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
@@ -190,7 +417,7 @@ func (r *userRepository) DeleteUser(userId uint) error <span class="cov8" title=
 }</span>
 </pre>
 		
-		<pre class="file" id="file2" style="display: none">package repository
+		<pre class="file" id="file5" style="display: none">package repository
 
 import (
         "github.com/TulioGuaraldoB/q2-payer-challenge/web/model"
