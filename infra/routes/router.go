@@ -54,6 +54,7 @@ func SetupRoutes() *fiber.App {
 	wallet.Post("user", walletController.GetWalletByUserCredentials)
 	wallet.Post("deposit", walletController.DepositToWalletBalance)
 	wallet.Post("", walletController.CreateWallet)
+	wallet.Post("payment", walletController.PayWalletTransaction)
 	wallet.Delete(":id", walletController.DeleteWallet)
 
 	transaction := v1.Group("transaction")

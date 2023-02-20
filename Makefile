@@ -1,6 +1,9 @@
 mysql:
 	@docker-compose up -d
 
+mysql-down:
+	@docker-compose down
+
 run:
 	@echo Running...
 	@go run main.go
@@ -20,9 +23,11 @@ mock:
 	@echo Mocking repositories...
 	@mockgen -source=web/repository/userRepository.go -destination=web/repository/mock/mockUserRepository.go -package=mock
 	@mockgen -source=web/repository/walletRepository.go -destination=web/repository/mock/mockWalletRepository.go -package=mock
+	@mockgen -source=web/repository/transactionRepository.go -destination=web/repository/mock/mockTransactionRepository.go -package=mock
 	@echo Mocking businesses...
 	@mockgen -source=web/business/userBusiness.go -destination=web/business/mock/mockUserBusiness.go -package=mock
 	@mockgen -source=web/business/walletBusiness.go -destination=web/business/mock/mockWalletBusiness.go -package=mock
+	@mockgen -source=web/business/transactionBusiness.go -destination=web/business/mock/mockTransactionBusiness.go -package=mock
 
 test:
 	@echo Running tests...

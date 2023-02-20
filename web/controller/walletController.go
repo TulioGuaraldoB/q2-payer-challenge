@@ -15,6 +15,7 @@ type IWalletController interface {
 	CreateWallet(ctx *fiber.Ctx) error
 	DeleteWallet(ctx *fiber.Ctx) error
 	DepositToWalletBalance(ctx *fiber.Ctx) error
+	PayWalletTransaction(ctx *fiber.Ctx) error
 }
 
 type walletController struct {
@@ -135,6 +136,22 @@ func (c *walletController) DepositToWalletBalance(ctx *fiber.Ctx) error {
 	})
 }
 
-func PayWalletTransaction(ctx *fiber.Ctx) error {
-	return ctx.Status(http.StatusCreated).JSON("")
+func (c *walletController) PayWalletTransaction(ctx *fiber.Ctx) error {
+	paymentTransactionRequest := new(dto.TransactionRequest)
+	if err := ctx.BodyParser(paymentTransactionRequest); err != nil {
+		return ctx.Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	updatedReceiverWallet, err := c.walletBusiness.PaymentWalletTransaction(paymentTransactionRequest)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	updatedReceiverWalletResponse := dto.ParseWalletToResponse(updatedReceiverWallet)
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{
+		"message":  "payment succeded!",
+		"receiver": updatedReceiverWalletResponse,
+	})
 }

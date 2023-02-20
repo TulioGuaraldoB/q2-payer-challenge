@@ -16,6 +16,7 @@ type IWalletBusiness interface {
 	DeleteWallet(walletId uint) error
 	UpdateWalletBalance(walletId uint, newBalance float64) error
 	DepositToWalletBalance(userId uint, newBalance float64) error
+	PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error)
 }
 
 type walletBusiness struct {
@@ -51,6 +52,7 @@ func (b *walletBusiness) GetWalletByUserCredentials(userCredentials *dto.UserCre
 }
 
 func (b *walletBusiness) CreateWallet(wallet *model.Wallet) error {
+	wallet.Balance = 0
 	return b.walletRepository.CreateWallet(wallet)
 }
 
@@ -73,14 +75,19 @@ func (b *walletBusiness) DepositToWalletBalance(userId uint, newBalance float64)
 	return b.UpdateWalletBalance(userId, newWalletBalance)
 }
 
-func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest, payerWalletUserId, targetWalletUserId uint, paymentTransactionValue float64) error {
-	wallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.PayerWalletUserID)
+func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.TransactionRequest) (*model.Wallet, error) {
+	payerWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.PayerWalletUserID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if wallet.Balance < paymentTransactionValue {
-		return constant.INSUFFICIENT_FUND
+	userPayerWallet := payerWallet.User
+	if userPayerWallet.UserType == constant.MERCHANT_USER {
+		return nil, constant.UNAUTHORIZED_TRANSACTION
+	}
+
+	if payerWallet.Balance < transactionRequest.Amount {
+		return nil, constant.INSUFFICIENT_FUND
 	}
 
 	authorizerResponse, err := b.authorizationService.CheckAuthorizerApi()
@@ -89,19 +96,28 @@ func (b *walletBusiness) PaymentWalletTransaction(transactionRequest *dto.Transa
 	}
 
 	if !authorizerResponse.Authorized {
-		return constant.UNAUTHORIZED_TRANSACTION
+		return nil, constant.UNAUTHORIZED_TRANSACTION
 	}
 
-	newPayerBalance := (wallet.Balance - paymentTransactionValue)
-	if err := b.walletRepository.UpdateWalletBalance(wallet.ID, newPayerBalance); err != nil {
-		return err
+	newPayerBalance := (payerWallet.Balance - transactionRequest.Amount)
+	if err := b.walletRepository.UpdateWalletBalance(payerWallet.ID, newPayerBalance); err != nil {
+		return nil, err
 	}
 
-	targetWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUsertID)
+	receiverWallet, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	newTargetBalance := (targetWallet.Balance + paymentTransactionValue)
-	return b.walletRepository.UpdateWalletBalance(targetWallet.ID, newTargetBalance)
+	newTargetBalance := (receiverWallet.Balance + transactionRequest.Amount)
+	if err := b.walletRepository.UpdateWalletBalance(receiverWallet.ID, newTargetBalance); err != nil {
+		return nil, err
+	}
+
+	receiverWalletUpdated, err := b.walletRepository.GetWalletByUserId(transactionRequest.ReceiverWalletUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return receiverWalletUpdated, nil
 }

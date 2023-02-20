@@ -12,9 +12,9 @@ type TransactionResponse struct {
 }
 
 type TransactionRequest struct {
-	PayerWalletUserID     uint    `json:"payer_id"`
-	ReceiverWalletUsertID uint    `json:"receiver_id"`
-	Amount                float64 `json:"amount"`
+	PayerWalletUserID    uint    `json:"payer_id"`
+	ReceiverWalletUserID uint    `json:"receiver_id"`
+	Amount               float64 `json:"amount"`
 }
 
 func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResponse {
@@ -55,7 +55,7 @@ func ParseTransactionToResponse(transaction *model.Transaction) *TransactionResp
 func ParseRequestToTransaction(transactionRequest *TransactionRequest) *model.Transaction {
 	return &model.Transaction{
 		PayerWalletID:    transactionRequest.PayerWalletUserID,
-		ReceiverWalletID: transactionRequest.ReceiverWalletUsertID,
+		ReceiverWalletID: transactionRequest.ReceiverWalletUserID,
 		Amount:           transactionRequest.Amount,
 	}
 }

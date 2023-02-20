@@ -46,15 +46,6 @@ func (r *walletRepository) UpdateWalletBalance(walletId uint, newBalance float64
 	wallet := new(model.Wallet)
 
 	tx := r.db.Begin()
-	defer func() {
-		if rec := recover(); rec != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := tx.Error; err != nil {
-		return err
-	}
 
 	if err := tx.Model(wallet).
 		Where("id = ?", &walletId).

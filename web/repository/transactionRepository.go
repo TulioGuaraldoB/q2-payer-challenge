@@ -23,7 +23,7 @@ func (r *transactionRepository) GetTransactionById(transactionId uint) (*model.T
 	transaction := new(model.Transaction)
 	if err := r.db.
 		Preload("PayerWallet.User").
-		Preload("TargetWallet.User").
+		Preload("ReceiverWallet.User").
 		First(&transaction, &transactionId).
 		Error; err != nil {
 		return nil, err
