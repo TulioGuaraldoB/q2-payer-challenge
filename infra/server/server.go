@@ -6,6 +6,7 @@ import (
 	"github.com/TulioGuaraldoB/q2-payer-challenge/config/env"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/infra/routes"
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/TulioGuaraldoB/q2-payer-challenge/docs"
 )
 
 type ServerConfig struct {
