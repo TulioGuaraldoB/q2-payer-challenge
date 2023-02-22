@@ -41,3 +41,8 @@ cover:
 	@go test -v ./... -coverprofile=coverage/cover.out
 	@go tool cover -html=coverage/cover.out -o coverage/cover.html
 	@echo Test coverage successfully completed!
+
+swagger:
+	@echo Generating documentation...
+	@swag init
+	@echo Swagger documentation generated successfully!

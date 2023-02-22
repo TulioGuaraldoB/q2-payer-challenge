@@ -24,6 +24,16 @@ func NewTransactionController(transactionBusiness business.ITransactionBusiness)
 	}
 }
 
+// GetTransactionById godoc
+// @Summary      Get Transaction By Id
+// @Description  Get Transaction By Id
+// @Tags         Get Transaction By Id
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  dto.TransactionResponse
+// @Failure      404  {object}  nil
+// @Failure      500  {object}  nil
+// @Router       /api/v1/transaction/:id [get]
 func (c *transactionController) GetTransactionById(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {

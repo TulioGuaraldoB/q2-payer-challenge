@@ -182,6 +182,17 @@ func (c *userController) GetUserByCredentials(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(userResponse)
 }
 
+// CreateUser godoc
+// @Summary      Create User
+// @Description  Create User
+// @Tags         Create User
+// @Param        User	body	dto.UserRequest  true  "User Request"
+// @Accept       json
+// @Produce      json
+// @Success      201  {object}  dto.UserResponse
+// @Failure      404  {object}  nil
+// @Failure      500  {object}  nil
+// @Router       /api/v1/user [post]
 func (c *userController) CreateUser(ctx *fiber.Ctx) error {
 	userRequest := new(dto.UserRequest)
 	if err := ctx.BodyParser(userRequest); err != nil {
@@ -195,12 +206,22 @@ func (c *userController) CreateUser(ctx *fiber.Ctx) error {
 			JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return ctx.Status(http.StatusOK).JSON(fiber.Map{
+	return ctx.Status(http.StatusCreated).JSON(fiber.Map{
 		"message": "user created successfully!",
 		"user":    userRequest,
 	})
 }
 
+// DeleteUser godoc
+// @Summary      Delete User
+// @Description  Delete User
+// @Tags         Delete User
+// @Accept       json
+// @Produce      json
+// @Success      200  {string}  "user deleted successfully!"
+// @Failure      404  {object}  nil
+// @Failure      500  {object}  nil
+// @Router       /api/v1/user/:id [delete]
 func (c *userController) DeleteUser(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	if err != nil {

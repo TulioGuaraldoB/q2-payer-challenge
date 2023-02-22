@@ -6,6 +6,7 @@ import (
 	"github.com/TulioGuaraldoB/q2-payer-challenge/docs"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/infra/db"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/util/health"
+	"github.com/TulioGuaraldoB/q2-payer-challenge/util/swagger"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/business"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/controller"
 	"github.com/TulioGuaraldoB/q2-payer-challenge/web/repository"
@@ -50,7 +51,7 @@ func SetupRoutes() *fiber.App {
 	app := fiber.New()
 	app.Get("health", health.HealthCheck)
 
-	setupSwagger()
+	swagger.SetupSwagger()
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	api := app.Group("api")

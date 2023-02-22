@@ -1,10 +1,49 @@
 definitions:
+  dto.TransactionRequest:
+    properties:
+      amount:
+        type: number
+      payer_id:
+        type: integer
+      receiver_id:
+        type: integer
+    type: object
+  dto.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      id:
+        type: integer
+      payer_id:
+        type: integer
+      payer_wallet:
+        $ref: '#/definitions/dto.WalletResponse'
+      receiver_wallet:
+        $ref: '#/definitions/dto.WalletResponse'
+      receiver_wallet_id:
+        type: integer
+    type: object
   dto.UserCredentials:
     properties:
       email:
         type: string
       password:
         type: string
+    type: object
+  dto.UserRequest:
+    properties:
+      cnpj:
+        type: string
+      cpf:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      user_type:
+        type: integer
     type: object
   dto.UserResponse:
     properties:
@@ -21,9 +60,46 @@ definitions:
       user_type:
         type: integer
     type: object
+  dto.WalletRequest:
+    properties:
+      balance:
+        type: number
+      user_id:
+        type: integer
+    type: object
+  dto.WalletResponse:
+    properties:
+      balance:
+        type: number
+      id:
+        type: integer
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+      user_id:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
+  /api/v1/transaction/:id:
+    get:
+      consumes:
+      - application/json
+      description: Get Transaction By Id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TransactionResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get Transaction By Id
+      tags:
+      - Get Transaction By Id
   /api/v1/user:
     get:
       consumes:
@@ -45,7 +121,50 @@ paths:
       summary: Get All Users
       tags:
       - Get All Users
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: User Request
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create User
+      tags:
+      - Create User
   /api/v1/user/:id:
+    delete:
+      consumes:
+      - application/json
+      description: Delete User
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user deleted successfully!
+          schema:
+            type: string
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete User
+      tags:
+      - Delete User
     get:
       consumes:
       - application/json
@@ -128,4 +247,127 @@ paths:
       summary: Get User By Credentials
       tags:
       - Get User By Credentials
+  /api/v1/wallet:
+    post:
+      consumes:
+      - application/json
+      description: Create Wallet
+      parameters:
+      - description: Wallet Request
+        in: body
+        name: Wallet
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WalletResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Create Wallet
+      tags:
+      - Create Wallet
+  /api/v1/wallet/:id:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Wallet
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: wallet deleted successfully!
+          schema:
+            type: string
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete Wallet
+      tags:
+      - Delete Wallet
+  /api/v1/wallet/deposit:
+    post:
+      consumes:
+      - application/json
+      description: Deposit To Wallet Balance
+      parameters:
+      - description: Wallet Request
+        in: body
+        name: Wallet
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WalletResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Deposit To Wallet Balance
+      tags:
+      - Deposit To Wallet Balance
+  /api/v1/wallet/payment:
+    post:
+      consumes:
+      - application/json
+      description: Pay Wallet Transaction
+      parameters:
+      - description: Transaction Request
+        in: body
+        name: Transaction
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WalletResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Pay Wallet Transaction
+      tags:
+      - Pay Wallet Transaction
+  /api/v1/wallet/user:
+    post:
+      consumes:
+      - application/json
+      description: Get Wallet By User Credentials
+      parameters:
+      - description: User Credentials
+        in: body
+        name: Credentials
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserCredentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.WalletResponse'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get Wallet By User Credentials
+      tags:
+      - Get Wallet By User Credentials
 swagger: "2.0"
